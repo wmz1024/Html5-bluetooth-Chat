@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Bluetooth Chat</title>
+</head>
+<body>
+	<h1>Bluetooth Chat</h1>
+
+	<button onclick="connect()">Connect to Bluetooth Device</button>
+	<input type="text" id="message" placeholder="Type your message here">
+	<button onclick="send()">Send</button>
+
+	<script>
+		let device;
+
+		function connect() {
+			navigator.bluetooth.requestDevice({
+				filters: [{
+					name: 'My Bluetooth Device'
+				}]
+			})
+			.then(selectedDevice => {
+				device = selectedDevice;
+				return device.gatt.connect();
+			})
+			.then(server => {
+				// TODO: Write code to handle connection
+			})
+			.catch(error => {
+				console.log('Error: ' + error);
+			});
+		}
+
+		function send() {
+			let message = document.getElementById('message').value;
+			let encoder = new TextEncoder();
+			device.gatt.getPrimaryService('bluetooth_chat')
+			.then(service => {
+				return service.getCharacteristic('message');
+			})
+			.then(characteristic => {
+				return characteristic.writeValue(encoder.encode(message));
+			})
+			.catch(error => {
+				console.log('Error: ' + error);
+			});
+		}
+	</script>
+</body>
+</html>
